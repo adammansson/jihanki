@@ -1,45 +1,46 @@
-//
-// Created by adam on 2/15/23.
-//
-
 #ifndef JIHANKI_COMPONENT_H
 #define JIHANKI_COMPONENT_H
 
 #include <SDL2/SDL.h>
-#include "listener.h"
+
+typedef struct component component_t;
+
+typedef struct listener {
+  int type;
+  void (*listener_function)(component_t *, SDL_Event *);
+} listener_t;
+
+typedef struct lisnode {
+  listener_t *listener;
+  struct lisnode *next;
+} lisnode_t;
+
+listener_t *new_listener(int type,
+                         void (*listener_function)(component_t *, SDL_Event *));
+
+lisnode_t *new_lisnode(listener_t *listener, lisnode_t *next);
 
 typedef struct component {
-    int x, y;
-    int width, height;
+  SDL_Rect rect;
+  SDL_Color color;
 
-    struct {
-        unsigned char hovered : 1;
-        unsigned char toggled : 1;
-        unsigned char pressed : 1;
-    };
+  int hovered;
 
-    struct listener_node *listeners;
+  void (*draw_function)(SDL_Renderer *, struct component *);
 
-    SDL_Rect rect;
-
-    SDL_Color color;
+  lisnode_t *listeners;
 } component_t;
 
-typedef struct cnode {
-    component_t *component;
-    struct cnode *next;
-} cnode_t;
-
-component_t *new_component(int x, int y, int width, int height, int red, int green, int blue);
+component_t *new_component(SDL_Rect rect, SDL_Color color,
+                           void (*draw_function)(SDL_Renderer *,
+                                                 struct component *));
 
 void draw_component(SDL_Renderer *renderer, component_t *component);
 
-void add_listener(component_t *component, listener_t listener);
+void add_listener(component_t *component, listener_t *listener);
 
-cnode_t *new_cnode(component_t *component, cnode_t *next);
+void trigger_event_component(component_t *component, SDL_Event *event);
 
-void draw_components(SDL_Renderer *renderer, cnode_t *cnode);
+void free_component(component_t *component);
 
-void free_components(cnode_t *cnode);
-
-#endif //JIHANKI_COMPONENT_H
+#endif // JIHANKI_COMPONENT_H

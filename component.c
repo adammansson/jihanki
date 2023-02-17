@@ -1,59 +1,96 @@
-//
-// Created by adam on 2/15/23.
-//
-
 #include "component.h"
 
-component_t *new_component(int x, int y, int width, int height, int red, int green, int blue) {
-    component_t *component;
+listener_t *new_listener(int type, void (*listener_function)(component_t *,
+                                                             SDL_Event *)) {
+  listener_t *listener;
 
-    component = malloc(sizeof(component_t));
-    component->x = x;
-    component->y = y;
-    component->width = width;
-    component->height = height;
+  listener = malloc(sizeof(listener_t));
+  listener->type = type;
+  listener->listener_function = listener_function;
 
-    component->rect.x = x;
-    component->rect.y = y;
-    component->rect.w= width;
-    component->rect.h = height;
+  return listener;
+}
+lisnode_t *new_lisnode(listener_t *listener, lisnode_t *next) {
+  lisnode_t *lisnode;
 
-    component->color.r= red;
-    component->color.g = green;
-    component->color.b = blue;
+  lisnode = malloc(sizeof(lisnode_t));
+  lisnode->listener = listener;
+  lisnode->next = next;
 
-    return component;
+  return lisnode;
+}
+
+static void leftmousebuttondown_function(component_t *component,
+                                         SDL_Event *event) {
+  SDL_Point point = {event->button.x, event->button.y};
+
+  if (SDL_PointInRect(&point, &component->rect) &&
+      event->button.button == SDL_BUTTON_LEFT) {
+    printf("Pressed button at: %d %d\n", component->rect.x, component->rect.y);
+  }
+}
+
+static void mousemotion_function(component_t *component, SDL_Event *event) {
+  SDL_Point point = {event->button.x, event->button.y};
+
+  if (SDL_PointInRect(&point, &component->rect) && !component->hovered) {
+    component->hovered = 1;
+    component->color.r -= 50;
+    component->color.g -= 50;
+    component->color.b -= 50;
+    printf("Entered button at: %d %d\n", component->rect.x, component->rect.y);
+  } else if (!SDL_PointInRect(&point, &component->rect) && component->hovered) {
+    component->hovered = 0;
+    component->color.r += 50;
+    component->color.g += 50;
+    component->color.b += 50;
+    printf("Left button at: %d %d\n", component->rect.x, component->rect.y);
+  }
+}
+
+component_t *new_component(SDL_Rect rect, SDL_Color color,
+                           void (*draw_function)(SDL_Renderer *,
+                                                 struct component *)) {
+  component_t *component;
+
+  component = malloc(sizeof(component_t));
+
+  component->rect = rect;
+  component->color = color;
+
+  component->hovered = 0;
+
+  component->draw_function = draw_function;
+  component->listeners = NULL;
+
+  add_listener(component,
+               new_listener(SDL_MOUSEBUTTONDOWN, leftmousebuttondown_function));
+
+  add_listener(component, new_listener(SDL_MOUSEMOTION, mousemotion_function));
+
+  return component;
 }
 
 void draw_component(SDL_Renderer *renderer, component_t *component) {
-    SDL_SetRenderDrawColor(renderer, component->color.r, component->color.g, component->color.b, 0);
-    SDL_RenderFillRect(renderer, &component->rect);
+  SDL_SetRenderDrawColor(renderer, component->color.r, component->color.g,
+                         component->color.b, 0);
+  SDL_RenderFillRect(renderer, &component->rect);
 }
 
-cnode_t *new_cnode(component_t *component, cnode_t *next) {
-    cnode_t *cnode;
-
-    cnode = malloc(sizeof(cnode_t));
-    cnode->component = component;
-    cnode->next = next;
-
-    return cnode;
+void add_listener(component_t *component, listener_t *listener) {
+  component->listeners = new_lisnode(listener, component->listeners);
 }
 
-void draw_components(SDL_Renderer *renderer, cnode_t *cnode) {
-    while (cnode != NULL) {
-        draw_component(renderer, cnode->component);
-        cnode = cnode->next;
+void trigger_event_component(component_t *component, SDL_Event *event) {
+  lisnode_t *current;
+
+  current = component->listeners;
+  while (current != NULL) {
+    if (current->listener->type == event->type) {
+      current->listener->listener_function(component, event);
     }
+    current = current->next;
+  }
 }
 
-void free_components(cnode_t *cnode) {
-    cnode_t *temp_node;
-
-    while (cnode != NULL) {
-        temp_node = cnode->next;
-        free(cnode->component);
-        free(cnode);
-        cnode = temp_node;
-    }
-}
+void free_component(component_t *component) { free(component); }
