@@ -4,7 +4,7 @@
 CC := cc
 
 # set the compiler flags
-CFLAGS := -Wall -Wextra -std=c11 -pedantic `sdl2-config --cflags --libs`
+CFLAGS := -Wall -Wextra -std=c11 -pedantic `sdl2-config --cflags --libs` -lSDL2_ttf
 
 SRCS = $(wildcard src/*/*.c src/*.c *.c )
 HDRS = $(wildcard src/*/.h src/*.h *.h)

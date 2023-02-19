@@ -20,37 +20,9 @@ lisnode_t *new_lisnode(listener_t *listener, lisnode_t *next) {
   return lisnode;
 }
 
-static void leftmousebuttondown_function(component_t *component,
-                                         SDL_Event *event) {
-  SDL_Point point = {event->button.x, event->button.y};
-
-  if (SDL_PointInRect(&point, &component->rect) &&
-      event->button.button == SDL_BUTTON_LEFT) {
-    printf("Pressed button at: %d %d\n", component->rect.x, component->rect.y);
-  }
-}
-
-static void mousemotion_function(component_t *component, SDL_Event *event) {
-  SDL_Point point = {event->button.x, event->button.y};
-
-  if (SDL_PointInRect(&point, &component->rect) && !component->hovered) {
-    component->hovered = 1;
-    component->color.r -= 50;
-    component->color.g -= 50;
-    component->color.b -= 50;
-    printf("Entered button at: %d %d\n", component->rect.x, component->rect.y);
-  } else if (!SDL_PointInRect(&point, &component->rect) && component->hovered) {
-    component->hovered = 0;
-    component->color.r += 50;
-    component->color.g += 50;
-    component->color.b += 50;
-    printf("Left button at: %d %d\n", component->rect.x, component->rect.y);
-  }
-}
-
 component_t *new_component(SDL_Rect rect, SDL_Color color,
-                           void (*draw_function)(SDL_Renderer *,
-                                                 struct component *)) {
+                           void (*draw_function)(struct component *,
+                                                 SDL_Renderer *)) {
   component_t *component;
 
   component = malloc(sizeof(component_t));
@@ -63,15 +35,10 @@ component_t *new_component(SDL_Rect rect, SDL_Color color,
   component->draw_function = draw_function;
   component->listeners = NULL;
 
-  add_listener(component,
-               new_listener(SDL_MOUSEBUTTONDOWN, leftmousebuttondown_function));
-
-  add_listener(component, new_listener(SDL_MOUSEMOTION, mousemotion_function));
-
   return component;
 }
 
-void draw_component(SDL_Renderer *renderer, component_t *component) {
+void draw_component(component_t *component, SDL_Renderer *renderer) {
   SDL_SetRenderDrawColor(renderer, component->color.r, component->color.g,
                          component->color.b, 0);
   SDL_RenderFillRect(renderer, &component->rect);

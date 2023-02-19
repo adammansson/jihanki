@@ -2,11 +2,12 @@
 #define JIHANKI_COMPONENT_H
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 
 typedef struct component component_t;
 
 typedef struct listener {
-  int type;
+  unsigned int type;
   void (*listener_function)(component_t *, SDL_Event *);
 } listener_t;
 
@@ -26,16 +27,16 @@ typedef struct component {
 
   int hovered;
 
-  void (*draw_function)(SDL_Renderer *, struct component *);
+  void (*draw_function)(struct component *, SDL_Renderer *);
 
   lisnode_t *listeners;
 } component_t;
 
 component_t *new_component(SDL_Rect rect, SDL_Color color,
-                           void (*draw_function)(SDL_Renderer *,
-                                                 struct component *));
+                           void (*draw_function)(struct component *,
+                                                 SDL_Renderer *));
 
-void draw_component(SDL_Renderer *renderer, component_t *component);
+void draw_component(component_t *component, SDL_Renderer *renderer);
 
 void add_listener(component_t *component, listener_t *listener);
 
