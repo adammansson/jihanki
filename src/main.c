@@ -1,4 +1,5 @@
-#include "component.h"
+#include "jihanki_component.h"
+#include "jihanki_context.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_events.h>
 #include <SDL2/SDL_render.h>
@@ -11,8 +12,7 @@
 void init_window(SDL_Window **window, SDL_Renderer **renderer, int width,
                  int height) {
   SDL_Init(SDL_INIT_VIDEO);
-  int a = TTF_Init();
-  printf("%d\n", a);
+  TTF_Init();
 
   SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN, window,
                               renderer);
@@ -66,43 +66,48 @@ int main(void) {
   SDL_Renderer *renderer;
   SDL_Event event;
   bool quit;
+  context_t *context;
   component_t *button0;
   component_t *button1;
+  component_t *button2;
   component_t *textfield0;
 
   init_window(&window, &renderer, 600, 800);
 
-  button0 = new_component((SDL_Rect){0, 110, 100, 100},
-                          (SDL_Color){255, 255, 255, 255}, draw_component);
-  button1 = new_component((SDL_Rect){110, 110, 100, 100},
-                          (SDL_Color){255, 255, 255, 255}, draw_component);
-  textfield0 = new_component((SDL_Rect){0, 0, 300, 100},
-                             (SDL_Color){255, 255, 255, 255}, draw_component);
+  context = context_new(window, renderer);
 
-  add_listener(button0,
-               new_listener(SDL_MOUSEBUTTONDOWN, leftmousebuttondown_function));
-  add_listener(button1,
-               new_listener(SDL_MOUSEBUTTONDOWN, leftmousebuttondown_function));
-  add_listener(button0, new_listener(SDL_MOUSEMOTION, mousemotion_function));
-  add_listener(button1, new_listener(SDL_MOUSEMOTION, mousemotion_function));
+  button0 = component_new((SDL_Rect){0, 110, 100, 100}, "0", context);
+  button1 = component_new((SDL_Rect){110, 110, 100, 100}, "1", context);
+  button2 = component_new((SDL_Rect){220, 110, 100, 100}, "2", context);
+  textfield0 = component_new((SDL_Rect){0, 0, 200, 100}, "Enter text", context);
 
-  TTF_Font *font =
-      TTF_OpenFont("/usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf", 256);
-  SDL_Color font_color = (SDL_Color){0, 0, 0, 255};
-  SDL_Surface *surface = TTF_RenderText_Solid(font, "0", font_color);
-  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+  component_add_listener(
+      button0, listener_new(SDL_MOUSEBUTTONDOWN, leftmousebuttondown_function));
+  component_add_listener(
+      button1, listener_new(SDL_MOUSEBUTTONDOWN, leftmousebuttondown_function));
+  component_add_listener(
+      button2, listener_new(SDL_MOUSEBUTTONDOWN, leftmousebuttondown_function));
+  component_add_listener(button0,
+                         listener_new(SDL_MOUSEMOTION, mousemotion_function));
+  component_add_listener(button1,
+                         listener_new(SDL_MOUSEMOTION, mousemotion_function));
+  component_add_listener(button2,
+                         listener_new(SDL_MOUSEMOTION, mousemotion_function));
 
   quit = false;
   while (!quit) {
-    button0->draw_function(button0, renderer);
-    SDL_RenderCopy(renderer, texture, NULL, &button0->rect);
-    button1->draw_function(button1, renderer);
-    textfield0->draw_function(textfield0, renderer);
+    // component_draw(button0, renderer);
+    // component_draw(button1, renderer);
+    // component_draw(button2, renderer);
+    // component_draw(textfield0, renderer);
+    context_draw(context);
 
     while (SDL_PollEvent(&event)) {
-      trigger_event_component(button0, &event);
-      trigger_event_component(button1, &event);
-      trigger_event_component(textfield0, &event);
+      // component_trigger_event(button0, &event);
+      // component_trigger_event(button1, &event);
+      // component_trigger_event(button2, &event);
+      // component_trigger_event(textfield0, &event);
+      context_trigger_event(context, &event);
 
       switch (event.type) {
       case SDL_QUIT:
@@ -113,14 +118,16 @@ int main(void) {
 
     SDL_RenderPresent(renderer);
 
-    /*
+    SDL_Delay(16);
+
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     SDL_RenderClear(renderer);
-    */
   }
 
-  free_component(button0);
-  free_component(button1);
+  component_free(button0);
+  component_free(button1);
+  component_free(button2);
+  component_free(textfield0);
 
   SDL_DestroyWindow(window);
   SDL_DestroyRenderer(renderer);
