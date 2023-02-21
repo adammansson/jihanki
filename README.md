@@ -1,2 +1,2 @@
 # jihanki
-Vending machine simulator, in C this time.
+My try at making a GUI library in C.
