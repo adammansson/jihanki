@@ -1,3 +1,4 @@
+#include "jihanki_button.h"
 #include "jihanki_component.h"
 #include "jihanki_context.h"
 #include <SDL2/SDL.h>
@@ -9,8 +10,13 @@
 
 #define WINDOW_TITLE "jihanki"
 
-void init_window(SDL_Window **window, SDL_Renderer **renderer, int width,
-                 int height) {
+component_t *button0;
+component_t *button1;
+component_t *button2;
+component_t *textfield0;
+
+void jihanki_init(SDL_Window **window, SDL_Renderer **renderer, int width,
+                  int height) {
   SDL_Init(SDL_INIT_VIDEO);
   TTF_Init();
 
@@ -28,85 +34,30 @@ void init_window(SDL_Window **window, SDL_Renderer **renderer, int width,
   SDL_RenderPresent(*renderer);
 }
 
-static void leftmousebuttondown_function(component_t *component,
-                                         SDL_Event *event) {
-  SDL_Point point = {event->button.x, event->button.y};
-  SDL_bool pointInRect = SDL_PointInRect(&point, &component->rect);
-
-  if (pointInRect && event->button.button == SDL_BUTTON_LEFT) {
-    printf("Pressed button at: %d %d\n", component->rect.x, component->rect.y);
-  }
-}
-
-static void mousemotion_function(component_t *component, SDL_Event *event) {
-  SDL_Point point = {event->button.x, event->button.y};
-  SDL_bool pointInRect = SDL_PointInRect(&point, &component->rect);
-
-  if (pointInRect && !component->hovered) {
-    component->hovered = 1;
-    component->color.r -= 50;
-    component->color.g -= 50;
-    component->color.b -= 50;
-    printf("Entered button at: %d %d\n", component->rect.x, component->rect.y);
-    return;
-  }
-
-  if (!pointInRect && component->hovered) {
-    component->hovered = 0;
-    component->color.r += 50;
-    component->color.g += 50;
-    component->color.b += 50;
-    printf("Left button at: %d %d\n", component->rect.x, component->rect.y);
-    return;
-  }
-}
-
 int main(void) {
   SDL_Window *window;
   SDL_Renderer *renderer;
   SDL_Event event;
   bool quit;
   context_t *context;
-  component_t *button0;
-  component_t *button1;
-  component_t *button2;
-  component_t *textfield0;
+  unsigned char counter;
 
-  init_window(&window, &renderer, 600, 800);
+  jihanki_init(&window, &renderer, 600, 800);
 
   context = context_new(window, renderer);
 
-  button0 = component_new((SDL_Rect){0, 110, 100, 100}, "0", context);
-  button1 = component_new((SDL_Rect){110, 110, 100, 100}, "1", context);
-  button2 = component_new((SDL_Rect){220, 110, 100, 100}, "2", context);
-  textfield0 = component_new((SDL_Rect){0, 0, 200, 100}, "Enter text", context);
+  button0 = button_new(context, (SDL_Rect){0, 110, 100, 100}, "0");
+  button1 = button_new(context, (SDL_Rect){110, 110, 100, 100}, "1");
+  button2 = button_new(context, (SDL_Rect){220, 110, 100, 100}, "2");
+  textfield0 = component_new(context, (SDL_Rect){0, 0, 200, 100}, "Enter text");
 
-  component_add_listener(
-      button0, listener_new(SDL_MOUSEBUTTONDOWN, leftmousebuttondown_function));
-  component_add_listener(
-      button1, listener_new(SDL_MOUSEBUTTONDOWN, leftmousebuttondown_function));
-  component_add_listener(
-      button2, listener_new(SDL_MOUSEBUTTONDOWN, leftmousebuttondown_function));
-  component_add_listener(button0,
-                         listener_new(SDL_MOUSEMOTION, mousemotion_function));
-  component_add_listener(button1,
-                         listener_new(SDL_MOUSEMOTION, mousemotion_function));
-  component_add_listener(button2,
-                         listener_new(SDL_MOUSEMOTION, mousemotion_function));
-
+  counter = 0;
   quit = false;
   while (!quit) {
-    // component_draw(button0, renderer);
-    // component_draw(button1, renderer);
-    // component_draw(button2, renderer);
-    // component_draw(textfield0, renderer);
-    context_draw(context);
+    // forced redraw of all components if counter overflows
+    context_draw(context, counter == 0);
 
     while (SDL_PollEvent(&event)) {
-      // component_trigger_event(button0, &event);
-      // component_trigger_event(button1, &event);
-      // component_trigger_event(button2, &event);
-      // component_trigger_event(textfield0, &event);
       context_trigger_event(context, &event);
 
       switch (event.type) {
@@ -120,14 +71,12 @@ int main(void) {
 
     SDL_Delay(16);
 
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
+    // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    // SDL_RenderClear(renderer);
+    counter++;
   }
 
-  component_free(button0);
-  component_free(button1);
-  component_free(button2);
-  component_free(textfield0);
+  context_free(context);
 
   SDL_DestroyWindow(window);
   SDL_DestroyRenderer(renderer);

@@ -2,6 +2,7 @@
 #define JIHANKI_CONTEXT_H
 
 #include <SDL2/SDL.h>
+#include <stdbool.h>
 
 typedef struct component component_t;
 typedef struct comnode comnode_t;
@@ -18,8 +19,12 @@ context_t *context_new(SDL_Window *window, SDL_Renderer *renderer);
 
 void context_add_component(context_t *context, component_t *component);
 
-void context_draw(context_t *context);
+void context_draw(context_t *context, bool forced);
+
+// void context_force_redraw(context_t *context);
 
 void context_trigger_event(context_t *context, SDL_Event *event);
+
+void context_free(context_t *context);
 
 #endif // JIHANKI_CONTEXT_H

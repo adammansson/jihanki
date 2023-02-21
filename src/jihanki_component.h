@@ -6,6 +6,8 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
+enum COMPONENTS_FLAGS { HAS_CHANGED = 0, TEXT_CHANGED, HOVERED };
+
 typedef struct component {
   SDL_Rect rect;
   SDL_Color color;
@@ -15,9 +17,7 @@ typedef struct component {
   SDL_Color font_color;
   SDL_Texture *font_texture;
 
-  struct {
-    int hovered : 1;
-  };
+  unsigned int flags;
 
   lisnode_t *listeners;
 } component_t;
@@ -27,7 +27,7 @@ typedef struct comnode {
   struct comnode *next;
 } comnode_t;
 
-component_t *component_new(SDL_Rect rect, char *text, context_t *context);
+component_t *component_new(context_t *context, SDL_Rect rect, char *text);
 
 comnode_t *comnode_new(component_t *component, comnode_t *next);
 

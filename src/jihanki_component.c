@@ -2,7 +2,7 @@
 #include "jihanki_context.h"
 #include <string.h>
 
-component_t *component_new(SDL_Rect rect, char *text, context_t *context) {
+component_t *component_new(context_t *context, SDL_Rect rect, char *text) {
   component_t *component;
 
   component = malloc(sizeof(component_t));
@@ -20,7 +20,9 @@ component_t *component_new(SDL_Rect rect, char *text, context_t *context) {
   component->font_texture =
       SDL_CreateTextureFromSurface(context->renderer, surface);
 
-  component->hovered = 0;
+  component->flags = 0;
+  // set HAS_CHANGED to 1
+  component->flags |= (1 << HAS_CHANGED);
 
   component->listeners = NULL;
 
@@ -39,11 +41,22 @@ comnode_t *comnode_new(component_t *component, comnode_t *next) {
 }
 
 void component_draw(component_t *component, SDL_Renderer *renderer) {
-  SDL_SetRenderDrawColor(renderer, component->color.r, component->color.g,
-                         component->color.b, 0);
-  SDL_RenderFillRect(renderer, &component->rect);
+  if (component->flags & (1 << HAS_CHANGED)) {
+    SDL_SetRenderDrawColor(renderer, component->color.r, component->color.g,
+                           component->color.b, 0);
+    SDL_RenderFillRect(renderer, &component->rect);
 
-  SDL_RenderCopy(renderer, component->font_texture, NULL, &component->rect);
+    if (component->flags & (1 << TEXT_CHANGED)) {
+      // remake font_texture
+      SDL_Surface *surface = TTF_RenderText_Solid(
+          component->font, component->text, component->font_color);
+      component->font_texture = SDL_CreateTextureFromSurface(renderer, surface);
+      component->flags &= ~(1 << TEXT_CHANGED);
+    }
+
+    SDL_RenderCopy(renderer, component->font_texture, NULL, &component->rect);
+    component->flags &= ~(1 << HAS_CHANGED);
+  }
 }
 
 void component_add_listener(component_t *component, listener_t *listener) {
