@@ -18,15 +18,11 @@ void context_add_component(context_t *context, component_t *component) {
   context->component_count++;
 }
 
-void context_draw(context_t *context, bool forced) {
+void context_draw(context_t *context) {
   comnode_t *node;
 
   node = context->components;
   while (node) {
-    if (forced) {
-      node->component->flags |= (1 << HAS_CHANGED);
-      printf("Forced redraw\n");
-    }
     component_draw(node->component, context->renderer);
     node = node->next;
   }

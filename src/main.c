@@ -9,11 +9,26 @@
 #include <stdio.h>
 
 #define WINDOW_TITLE "jihanki"
+#define WINDOW_WIDTH (600)
+#define WINDOW_HEIGHT (800)
+#define BUTTON_SIDE (100)
+#define BUTTON_START (300)
+#define BUTTON_OFFSET (10)
+#define TEXTFIELD_HEIGHT (100)
 
 component_t *button0;
 component_t *button1;
 component_t *button2;
-component_t *textfield0;
+component_t *button3;
+component_t *button4;
+component_t *button5;
+component_t *button6;
+component_t *button7;
+component_t *button8;
+component_t *button9;
+component_t *buttonDelete;
+component_t *buttonClear;
+component_t *textfield;
 
 void jihanki_init(SDL_Window **window, SDL_Renderer **renderer, int width,
                   int height) {
@@ -40,22 +55,75 @@ int main(void) {
   SDL_Event event;
   bool quit;
   context_t *context;
-  unsigned char counter;
 
-  jihanki_init(&window, &renderer, 600, 800);
+  jihanki_init(&window, &renderer, WINDOW_WIDTH, WINDOW_HEIGHT);
 
   context = context_new(window, renderer);
 
-  button0 = button_new(context, (SDL_Rect){0, 110, 100, 100}, "0");
-  button1 = button_new(context, (SDL_Rect){110, 110, 100, 100}, "1");
-  button2 = button_new(context, (SDL_Rect){220, 110, 100, 100}, "2");
-  textfield0 = component_new(context, (SDL_Rect){0, 0, 200, 100}, "Enter text");
+  button1 = button_new(
+      context, (SDL_Rect){0, BUTTON_START, BUTTON_SIDE, BUTTON_SIDE}, "1");
+  button2 = button_new(context,
+                       (SDL_Rect){BUTTON_SIDE + BUTTON_OFFSET, BUTTON_START,
+                                  BUTTON_SIDE, BUTTON_SIDE},
+                       "2");
+  button3 = button_new(context,
+                       (SDL_Rect){2 * (BUTTON_SIDE + BUTTON_OFFSET),
+                                  BUTTON_START, BUTTON_SIDE, BUTTON_SIDE},
+                       "3");
+  button4 = button_new(context,
+                       (SDL_Rect){0, BUTTON_START + BUTTON_OFFSET + BUTTON_SIDE,
+                                  BUTTON_SIDE, BUTTON_SIDE},
+                       "4");
+  button5 = button_new(context,
+                       (SDL_Rect){BUTTON_SIDE + BUTTON_OFFSET,
+                                  BUTTON_START + BUTTON_OFFSET + BUTTON_SIDE,
+                                  BUTTON_SIDE, BUTTON_SIDE},
+                       "5");
+  button6 = button_new(context,
+                       (SDL_Rect){2 * (BUTTON_SIDE + BUTTON_OFFSET),
+                                  BUTTON_START + BUTTON_OFFSET + BUTTON_SIDE,
+                                  BUTTON_SIDE, BUTTON_SIDE},
+                       "6");
+  button7 =
+      button_new(context,
+                 (SDL_Rect){0, BUTTON_START + 2 * (BUTTON_OFFSET + BUTTON_SIDE),
+                            BUTTON_SIDE, BUTTON_SIDE},
+                 "7");
+  button8 =
+      button_new(context,
+                 (SDL_Rect){BUTTON_SIDE + BUTTON_OFFSET,
+                            BUTTON_START + 2 * (BUTTON_OFFSET + BUTTON_SIDE),
+                            BUTTON_SIDE, BUTTON_SIDE},
+                 "8");
+  button9 =
+      button_new(context,
+                 (SDL_Rect){2 * (BUTTON_SIDE + BUTTON_OFFSET),
+                            BUTTON_START + 2 * (BUTTON_OFFSET + BUTTON_SIDE),
+                            BUTTON_SIDE, BUTTON_SIDE},
+                 "9");
+  buttonDelete =
+      button_new(context,
+                 (SDL_Rect){0, BUTTON_START + 3 * (BUTTON_OFFSET + BUTTON_SIDE),
+                            BUTTON_SIDE, BUTTON_SIDE},
+                 "*");
+  button0 =
+      button_new(context,
+                 (SDL_Rect){BUTTON_SIDE + BUTTON_OFFSET,
+                            BUTTON_START + 3 * (BUTTON_OFFSET + BUTTON_SIDE),
+                            BUTTON_SIDE, BUTTON_SIDE},
+                 "0");
+  buttonClear =
+      button_new(context,
+                 (SDL_Rect){2 * (BUTTON_SIDE + BUTTON_OFFSET),
+                            BUTTON_START + 3 * (BUTTON_OFFSET + BUTTON_SIDE),
+                            BUTTON_SIDE, BUTTON_SIDE},
+                 "#");
+  textfield = component_new(context, (SDL_Rect){0, 100, WINDOW_WIDTH, 100},
+                            "Enter text");
 
-  counter = 0;
   quit = false;
   while (!quit) {
-    // forced redraw of all components if counter overflows
-    context_draw(context, counter == 0);
+    context_draw(context);
 
     while (SDL_PollEvent(&event)) {
       context_trigger_event(context, &event);
@@ -73,7 +141,6 @@ int main(void) {
 
     // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
     // SDL_RenderClear(renderer);
-    counter++;
   }
 
   context_free(context);

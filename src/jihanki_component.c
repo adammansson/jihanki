@@ -41,21 +41,21 @@ comnode_t *comnode_new(component_t *component, comnode_t *next) {
 }
 
 void component_draw(component_t *component, SDL_Renderer *renderer) {
+  // only redraw component if it has changed
   if (component->flags & (1 << HAS_CHANGED)) {
     SDL_SetRenderDrawColor(renderer, component->color.r, component->color.g,
                            component->color.b, 0);
     SDL_RenderFillRect(renderer, &component->rect);
+    component->flags &= ~(1 << HAS_CHANGED);
 
     if (component->flags & (1 << TEXT_CHANGED)) {
-      // remake font_texture
+      // remake font_texture if text has changed
       SDL_Surface *surface = TTF_RenderText_Solid(
           component->font, component->text, component->font_color);
       component->font_texture = SDL_CreateTextureFromSurface(renderer, surface);
       component->flags &= ~(1 << TEXT_CHANGED);
     }
-
     SDL_RenderCopy(renderer, component->font_texture, NULL, &component->rect);
-    component->flags &= ~(1 << HAS_CHANGED);
   }
 }
 
