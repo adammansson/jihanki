@@ -37,6 +37,8 @@ void component_add_listener(component_t *component, listener_t *listener);
 
 void component_trigger_event(component_t *component, SDL_Event *event);
 
+void component_set_text(component_t *component, char *text);
+
 void component_free(component_t *component);
 
 #endif // JIHANKI_COMPONENT_H

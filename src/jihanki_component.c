@@ -75,6 +75,13 @@ void component_trigger_event(component_t *component, SDL_Event *event) {
   }
 }
 
+void component_set_text(component_t *component, char *text) {
+  component->text = realloc(component->text, strlen(text) + 1);
+  strcpy(component->text, text);
+  component->flags |= (1 << HAS_CHANGED);
+  component->flags |= (1 << TEXT_CHANGED);
+}
+
 void component_free(component_t *component) {
   free(component->text);
   free(component);
