@@ -6,7 +6,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 
-enum COMPONENT_FLAGS { HAS_CHANGED = 0, TEXT_CHANGED, HOVERED };
+enum COMPONENT_FLAGS { TEXT_CHANGED, HOVERED };
 
 typedef struct component {
   SDL_Rect rect;

@@ -188,8 +188,8 @@ int main(void) {
 
     SDL_Delay(16);
 
-    // SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    // SDL_RenderClear(renderer);
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+    SDL_RenderClear(renderer);
   }
 
   context_free(context);

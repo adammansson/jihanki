@@ -13,7 +13,6 @@ static void mousemotion_function(component_t *component, SDL_Event *event) {
     component->color.r -= 50;
     component->color.g -= 50;
     component->color.b -= 50;
-    component->flags |= (1 << HAS_CHANGED);
     printf("Entered button at: %d %d\n", component->rect.x, component->rect.y);
     return;
   }
@@ -23,7 +22,6 @@ static void mousemotion_function(component_t *component, SDL_Event *event) {
     component->color.r += 50;
     component->color.g += 50;
     component->color.b += 50;
-    component->flags |= (1 << HAS_CHANGED);
     printf("Left button at: %d %d\n", component->rect.x, component->rect.y);
     return;
   }
