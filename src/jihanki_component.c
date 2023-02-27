@@ -2,6 +2,8 @@
 #include "jihanki_context.h"
 #include <string.h>
 
+#define FONT_RATIO (0.717)
+
 component_t *component_new(context_t *context, SDL_Rect rect, char *text) {
   component_t *component;
 
@@ -13,12 +15,17 @@ component_t *component_new(context_t *context, SDL_Rect rect, char *text) {
   strcpy(component->text, text);
 
   component->font =
-      TTF_OpenFont("/usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf", 512);
+      TTF_OpenFont("/usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf", 64);
   component->font_color = (SDL_Color){0, 0, 0, 255};
   SDL_Surface *surface = TTF_RenderText_Solid(component->font, component->text,
                                               component->font_color);
   component->font_texture =
       SDL_CreateTextureFromSurface(context->renderer, surface);
+  if (surface == NULL) {
+    component->font_rect = (SDL_Rect){rect.x, rect.y, 0, 0};
+  } else {
+    component->font_rect = (SDL_Rect){rect.x, rect.y, surface->w, surface->h};
+  }
 
   component->flags = 0;
   // set HAS_CHANGED to 1
@@ -43,6 +50,7 @@ comnode_t *comnode_new(component_t *component, comnode_t *next) {
 void component_draw(component_t *component, SDL_Renderer *renderer) {
   // only redraw component if it has changed
   if (component->flags & (1 << HAS_CHANGED)) {
+    printf("Redrawing\n");
     SDL_SetRenderDrawColor(renderer, component->color.r, component->color.g,
                            component->color.b, 0);
     SDL_RenderFillRect(renderer, &component->rect);
@@ -53,9 +61,17 @@ void component_draw(component_t *component, SDL_Renderer *renderer) {
       SDL_Surface *surface = TTF_RenderText_Solid(
           component->font, component->text, component->font_color);
       component->font_texture = SDL_CreateTextureFromSurface(renderer, surface);
+      if (surface == NULL) {
+        component->font_rect =
+            (SDL_Rect){component->rect.x, component->rect.y, 0, 0};
+      } else {
+        component->font_rect = (SDL_Rect){component->rect.x, component->rect.y,
+                                          surface->w, surface->h};
+      }
       component->flags &= ~(1 << TEXT_CHANGED);
     }
-    SDL_RenderCopy(renderer, component->font_texture, NULL, &component->rect);
+    SDL_RenderCopy(renderer, component->font_texture, NULL,
+                   &component->font_rect);
   }
 }
 

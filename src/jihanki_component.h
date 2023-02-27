@@ -16,6 +16,7 @@ typedef struct component {
   TTF_Font *font;
   SDL_Color font_color;
   SDL_Texture *font_texture;
+  SDL_Rect font_rect;
 
   unsigned int flags;
 

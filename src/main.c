@@ -194,7 +194,8 @@ int main(void) {
 
   context_free(context);
 
-  SDL_DestroyWindow(window);
   SDL_DestroyRenderer(renderer);
+  SDL_DestroyWindow(window);
   SDL_Quit();
+  printf("Exiting...\n");
 }
