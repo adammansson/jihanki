@@ -31,25 +31,6 @@ component_t *buttonDelete;
 component_t *buttonClear;
 component_t *textfield;
 
-void jihanki_init(SDL_Window **window, SDL_Renderer **renderer, int width,
-                  int height) {
-  SDL_Init(SDL_INIT_VIDEO);
-  TTF_Init();
-
-  SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN, window,
-                              renderer);
-
-  if (!*window || !*renderer) {
-    fprintf(stderr, "ERROR: %s", SDL_GetError());
-    exit(1);
-  }
-
-  SDL_SetWindowTitle(*window, WINDOW_TITLE);
-  SDL_SetRenderDrawColor(*renderer, 0, 0, 0, 0);
-  SDL_RenderClear(*renderer);
-  SDL_RenderPresent(*renderer);
-}
-
 static void leftmousebuttondown_function(component_t *component,
                                          SDL_Event *event) {
   char *text;
@@ -67,6 +48,25 @@ static void leftmousebuttondown_function(component_t *component,
     printf("Length of textfield: %lu\n", strlen(textfield->text));
     printf("Pressed button at: %d %d\n", component->rect.x, component->rect.y);
   }
+}
+
+void jihanki_init(SDL_Window **window, SDL_Renderer **renderer, int width,
+                  int height) {
+  SDL_Init(SDL_INIT_VIDEO);
+  TTF_Init();
+
+  SDL_CreateWindowAndRenderer(width, height, SDL_WINDOW_SHOWN, window,
+                              renderer);
+
+  if (!*window || !*renderer) {
+    fprintf(stderr, "ERROR: %s", SDL_GetError());
+    exit(1);
+  }
+
+  SDL_SetWindowTitle(*window, WINDOW_TITLE);
+  SDL_SetRenderDrawColor(*renderer, 0, 0, 0, 0);
+  SDL_RenderClear(*renderer);
+  SDL_RenderPresent(*renderer);
 }
 
 int main(void) {
@@ -196,6 +196,7 @@ int main(void) {
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
+  TTF_Quit();
   SDL_Quit();
   printf("Exiting...\n");
 }
