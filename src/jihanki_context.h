@@ -11,7 +11,7 @@ typedef struct context {
   SDL_Renderer *renderer;
 
   comnode_t *components;
-  int component_count;
+  unsigned int component_count;
 } context_t;
 
 context_t *context_new(SDL_Window *window, SDL_Renderer *renderer);

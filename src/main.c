@@ -17,25 +17,24 @@
 #define BUTTON_OFFSET (10)
 #define TEXTFIELD_HEIGHT (100)
 
-component_t *button0;
-component_t *button1;
-component_t *button2;
-component_t *button3;
-component_t *button4;
-component_t *button5;
-component_t *button6;
-component_t *button7;
-component_t *button8;
-component_t *button9;
-component_t *buttonDelete;
-component_t *buttonClear;
+component_t *button_0;
+component_t *button_1;
+component_t *button_2;
+component_t *button_3;
+component_t *button_4;
+component_t *button_5;
+component_t *button_6;
+component_t *button_7;
+component_t *button_8;
+component_t *button_9;
+component_t *button_delete;
+component_t *button_clear;
 component_t *textfield;
 
-static void leftmousebuttondown_function(component_t *component,
-                                         SDL_Event *event) {
-  char *text;
+static void addtotextfield_function(component_t *component, SDL_Event *event) {
   SDL_Point point;
   SDL_bool point_in_rect;
+  char *text;
 
   point = (SDL_Point){event->button.x, event->button.y};
   point_in_rect = SDL_PointInRect(&point, &component->rect);
@@ -45,6 +44,41 @@ static void leftmousebuttondown_function(component_t *component,
     strcpy(text, textfield->text);
     strcat(text, component->text);
     component_set_text(textfield, text);
+    printf("Length of textfield: %lu\n", strlen(textfield->text));
+    printf("Pressed button at: %d %d\n", component->rect.x, component->rect.y);
+  }
+}
+
+static void deletetextfield_function(component_t *component, SDL_Event *event) {
+  SDL_Point point;
+  SDL_bool point_in_rect;
+  size_t text_length;
+
+  point = (SDL_Point){event->button.x, event->button.y};
+  point_in_rect = SDL_PointInRect(&point, &component->rect);
+
+  if (event->button.button == SDL_BUTTON_LEFT && point_in_rect) {
+    text_length = strlen(textfield->text);
+    if (text_length > 0) {
+      textfield->text[strlen(textfield->text) - 1] = '\0';
+      component_set_text(textfield, textfield->text);
+    }
+    printf("Length of textfield: %lu\n", strlen(textfield->text));
+    printf("Pressed button at: %d %d\n", component->rect.x, component->rect.y);
+  }
+}
+
+static void cleartextfield_function(component_t *component, SDL_Event *event) {
+  SDL_Point point;
+  SDL_bool point_in_rect;
+
+  point = (SDL_Point){event->button.x, event->button.y};
+  point_in_rect = SDL_PointInRect(&point, &component->rect);
+
+  if (event->button.button == SDL_BUTTON_LEFT && point_in_rect) {
+    if (strlen(textfield->text) > 0) {
+      component_set_text(textfield, "");
+    }
     printf("Length of textfield: %lu\n", strlen(textfield->text));
     printf("Pressed button at: %d %d\n", component->rect.x, component->rect.y);
   }
@@ -80,95 +114,105 @@ int main(void) {
 
   context = context_new(window, renderer);
 
-  button1 = button_new(
+  button_1 = button_new(
       context, (SDL_Rect){0, BUTTON_START, BUTTON_SIDE, BUTTON_SIDE}, "1");
-  component_add_listener(button1, listener_new(SDL_MOUSEBUTTONDOWN,
-                                               &leftmousebuttondown_function));
+  component_add_listener(
+      button_1, listener_new(SDL_MOUSEBUTTONDOWN, &addtotextfield_function));
 
-  button2 = button_new(context,
-                       (SDL_Rect){BUTTON_SIDE + BUTTON_OFFSET, BUTTON_START,
-                                  BUTTON_SIDE, BUTTON_SIDE},
-                       "2");
-  component_add_listener(button2, listener_new(SDL_MOUSEBUTTONDOWN,
-                                               &leftmousebuttondown_function));
+  button_2 = button_new(context,
+                        (SDL_Rect){BUTTON_SIDE + BUTTON_OFFSET, BUTTON_START,
+                                   BUTTON_SIDE, BUTTON_SIDE},
+                        "2");
+  component_add_listener(
+      button_2, listener_new(SDL_MOUSEBUTTONDOWN, &addtotextfield_function));
 
-  button3 = button_new(context,
-                       (SDL_Rect){2 * (BUTTON_SIDE + BUTTON_OFFSET),
-                                  BUTTON_START, BUTTON_SIDE, BUTTON_SIDE},
-                       "3");
-  component_add_listener(button3, listener_new(SDL_MOUSEBUTTONDOWN,
-                                               &leftmousebuttondown_function));
+  button_3 = button_new(context,
+                        (SDL_Rect){2 * (BUTTON_SIDE + BUTTON_OFFSET),
+                                   BUTTON_START, BUTTON_SIDE, BUTTON_SIDE},
+                        "3");
+  component_add_listener(
+      button_3, listener_new(SDL_MOUSEBUTTONDOWN, &addtotextfield_function));
 
-  button4 = button_new(context,
-                       (SDL_Rect){0, BUTTON_START + BUTTON_OFFSET + BUTTON_SIDE,
-                                  BUTTON_SIDE, BUTTON_SIDE},
-                       "4");
-  component_add_listener(button4, listener_new(SDL_MOUSEBUTTONDOWN,
-                                               &leftmousebuttondown_function));
+  button_4 =
+      button_new(context,
+                 (SDL_Rect){0, BUTTON_START + BUTTON_OFFSET + BUTTON_SIDE,
+                            BUTTON_SIDE, BUTTON_SIDE},
+                 "4");
+  component_add_listener(
+      button_4, listener_new(SDL_MOUSEBUTTONDOWN, &addtotextfield_function));
 
-  button5 = button_new(context,
-                       (SDL_Rect){BUTTON_SIDE + BUTTON_OFFSET,
-                                  BUTTON_START + BUTTON_OFFSET + BUTTON_SIDE,
-                                  BUTTON_SIDE, BUTTON_SIDE},
-                       "5");
-  component_add_listener(button5, listener_new(SDL_MOUSEBUTTONDOWN,
-                                               &leftmousebuttondown_function));
+  button_5 = button_new(context,
+                        (SDL_Rect){BUTTON_SIDE + BUTTON_OFFSET,
+                                   BUTTON_START + BUTTON_OFFSET + BUTTON_SIDE,
+                                   BUTTON_SIDE, BUTTON_SIDE},
+                        "5");
+  component_add_listener(
+      button_5, listener_new(SDL_MOUSEBUTTONDOWN, &addtotextfield_function));
 
-  button6 = button_new(context,
-                       (SDL_Rect){2 * (BUTTON_SIDE + BUTTON_OFFSET),
-                                  BUTTON_START + BUTTON_OFFSET + BUTTON_SIDE,
-                                  BUTTON_SIDE, BUTTON_SIDE},
-                       "6");
-  component_add_listener(button6, listener_new(SDL_MOUSEBUTTONDOWN,
-                                               &leftmousebuttondown_function));
+  button_6 = button_new(context,
+                        (SDL_Rect){2 * (BUTTON_SIDE + BUTTON_OFFSET),
+                                   BUTTON_START + BUTTON_OFFSET + BUTTON_SIDE,
+                                   BUTTON_SIDE, BUTTON_SIDE},
+                        "6");
+  component_add_listener(
+      button_6, listener_new(SDL_MOUSEBUTTONDOWN, &addtotextfield_function));
 
-  button7 =
+  button_7 =
       button_new(context,
                  (SDL_Rect){0, BUTTON_START + 2 * (BUTTON_OFFSET + BUTTON_SIDE),
                             BUTTON_SIDE, BUTTON_SIDE},
                  "7");
-  component_add_listener(button7, listener_new(SDL_MOUSEBUTTONDOWN,
-                                               &leftmousebuttondown_function));
+  component_add_listener(
+      button_7, listener_new(SDL_MOUSEBUTTONDOWN, &addtotextfield_function));
 
-  button8 =
+  button_8 =
       button_new(context,
                  (SDL_Rect){BUTTON_SIDE + BUTTON_OFFSET,
                             BUTTON_START + 2 * (BUTTON_OFFSET + BUTTON_SIDE),
                             BUTTON_SIDE, BUTTON_SIDE},
                  "8");
-  component_add_listener(button8, listener_new(SDL_MOUSEBUTTONDOWN,
-                                               &leftmousebuttondown_function));
+  component_add_listener(
+      button_8, listener_new(SDL_MOUSEBUTTONDOWN, &addtotextfield_function));
 
-  button9 =
+  button_9 =
       button_new(context,
                  (SDL_Rect){2 * (BUTTON_SIDE + BUTTON_OFFSET),
                             BUTTON_START + 2 * (BUTTON_OFFSET + BUTTON_SIDE),
                             BUTTON_SIDE, BUTTON_SIDE},
                  "9");
-  component_add_listener(button9, listener_new(SDL_MOUSEBUTTONDOWN,
-                                               &leftmousebuttondown_function));
+  component_add_listener(
+      button_9, listener_new(SDL_MOUSEBUTTONDOWN, &addtotextfield_function));
 
-  buttonDelete =
+  button_delete =
       button_new(context,
                  (SDL_Rect){0, BUTTON_START + 3 * (BUTTON_OFFSET + BUTTON_SIDE),
                             BUTTON_SIDE, BUTTON_SIDE},
-                 "*");
-  button0 =
+                 "D");
+
+  component_add_listener(
+      button_delete,
+      listener_new(SDL_MOUSEBUTTONDOWN, &deletetextfield_function));
+
+  button_0 =
       button_new(context,
                  (SDL_Rect){BUTTON_SIDE + BUTTON_OFFSET,
                             BUTTON_START + 3 * (BUTTON_OFFSET + BUTTON_SIDE),
                             BUTTON_SIDE, BUTTON_SIDE},
                  "0");
-  component_add_listener(button0, listener_new(SDL_MOUSEBUTTONDOWN,
-                                               &leftmousebuttondown_function));
+  component_add_listener(
+      button_0, listener_new(SDL_MOUSEBUTTONDOWN, &addtotextfield_function));
 
-  buttonClear =
+  button_clear =
       button_new(context,
                  (SDL_Rect){2 * (BUTTON_SIDE + BUTTON_OFFSET),
                             BUTTON_START + 3 * (BUTTON_OFFSET + BUTTON_SIDE),
                             BUTTON_SIDE, BUTTON_SIDE},
-                 "#");
+                 "C");
+  component_add_listener(button_clear, listener_new(SDL_MOUSEBUTTONDOWN,
+                                                    &cleartextfield_function));
+
   textfield = component_new(context, (SDL_Rect){0, 100, WINDOW_WIDTH, 100}, "");
+  textfield->flags &= ~(1 << TEXT_CENTERED);
 
   quit = false;
   while (!quit) {

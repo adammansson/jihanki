@@ -1,7 +1,7 @@
 #include "jihanki_button.h"
 #include "jihanki_component.h"
 
-static void mousemotion_function(component_t *component, SDL_Event *event) {
+static void hover_function(component_t *component, SDL_Event *event) {
   SDL_Point point;
   SDL_bool point_in_rect;
 
@@ -32,6 +32,6 @@ component_t *button_new(context_t *context, SDL_Rect rect, char *text) {
 
   button = component_new(context, rect, text);
   component_add_listener(button,
-                         listener_new(SDL_MOUSEMOTION, &mousemotion_function));
+                         listener_new(SDL_MOUSEMOTION, &hover_function));
   return button;
 }

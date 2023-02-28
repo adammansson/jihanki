@@ -2,10 +2,30 @@
 #include "jihanki_context.h"
 #include <string.h>
 
+static SDL_Rect calculate_font_rect(SDL_Rect rect, SDL_Surface *surface,
+                                    int centered_text) {
+  int font_rectw, font_recth;
+  int font_rectx, font_recty;
+
+  if (surface == NULL) {
+    return (SDL_Rect){0, 0, 0, 0};
+  }
+
+  font_rectw = surface->w;
+  font_recth = surface->h;
+  font_recty = rect.y + (rect.h - font_recth) / 2;
+  if (centered_text) {
+    font_rectx = rect.x + (rect.w - font_rectw) / 2;
+    return (SDL_Rect){font_rectx, font_recty, font_rectw, font_recth};
+  }
+
+  font_rectx = rect.w - font_rectw;
+  return (SDL_Rect){font_rectx, font_recty, font_rectw, font_recth};
+}
+
 component_t *component_new(context_t *context, SDL_Rect rect, char *text) {
   component_t *component;
   int font_pts;
-  int font_rectx, font_recty;
 
   component = malloc(sizeof(component_t));
 
@@ -18,22 +38,15 @@ component_t *component_new(context_t *context, SDL_Rect rect, char *text) {
   component->font = TTF_OpenFont(
       "/usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf", font_pts);
   component->font_color = (SDL_Color){0, 0, 0, 255};
-  SDL_Surface *surface = TTF_RenderText_Solid(component->font, component->text,
-                                              component->font_color);
-
-  if (surface == NULL) {
-    component->font_rect = (SDL_Rect){rect.x, rect.y, 0, 0};
-  } else {
-    font_rectx = rect.x + (rect.w - surface->w) / 2;
-    font_recty = rect.y + (rect.h - surface->h) / 2;
-
-    component->font_rect =
-        (SDL_Rect){font_rectx, font_recty, surface->w, surface->h};
-  }
-  component->font_texture =
-      SDL_CreateTextureFromSurface(context->renderer, surface);
 
   component->flags = 0;
+
+  // set TEXT_CHANGED to 1 to create everything
+  // regarding fonts on first call to component_draw
+  component->flags |= (1 << TEXT_CHANGED);
+
+  // set CENTERED_TEXT as standard
+  component->flags |= (1 << TEXT_CENTERED);
 
   component->listeners = NULL;
 
@@ -52,7 +65,7 @@ comnode_t *comnode_new(component_t *component, comnode_t *next) {
 }
 
 void component_draw(component_t *component, SDL_Renderer *renderer) {
-  int font_rectx, font_recty;
+  SDL_Surface *surface;
 
   SDL_SetRenderDrawColor(renderer, component->color.r, component->color.g,
                          component->color.b, 0);
@@ -60,18 +73,10 @@ void component_draw(component_t *component, SDL_Renderer *renderer) {
 
   if (component->flags & (1 << TEXT_CHANGED)) {
     // remake font_texture if text has changed
-    SDL_Surface *surface = TTF_RenderText_Solid(
-        component->font, component->text, component->font_color);
-    if (surface == NULL) {
-      component->font_rect =
-          (SDL_Rect){component->rect.x, component->rect.y, 0, 0};
-    } else {
-      font_rectx = component->rect.x + (component->rect.w - surface->w) / 2;
-      font_recty = component->rect.y + (component->rect.h - surface->h) / 2;
-
-      component->font_rect =
-          (SDL_Rect){font_rectx, font_recty, surface->w, surface->h};
-    }
+    surface = TTF_RenderText_Solid(component->font, component->text,
+                                   component->font_color);
+    component->font_rect = calculate_font_rect(
+        component->rect, surface, component->flags & (1 << TEXT_CENTERED));
     component->font_texture = SDL_CreateTextureFromSurface(renderer, surface);
     component->flags &= ~(1 << TEXT_CHANGED);
   }
